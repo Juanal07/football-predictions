@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-import pandas as pd
+
+# import pandas as pd
 
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 
@@ -10,11 +11,14 @@ players = spark.read.csv(
     "./FootballDatabase/players.csv", header=True, inferSchema=True, sep=","
 )
 players.createOrReplaceTempView("players")
-
+games = spark.read.csv(
+    "./FootballDatabase/games.csv", header=True, inferSchema=True, sep=","
+)
+games.createOrReplaceTempView("games")
 # shooterID = 2097 # Messi
 # shooterID = 447  # De Bruyne
 # shooterID = 564
-shooterID = 629
+shooterID = 629  # Rooney
 # shotType = "Head"
 shotResult = "Goal"
 
@@ -24,10 +28,10 @@ result = result.filter(shots["shotResult"] == shotResult)
 result.createOrReplaceTempView("shots")
 
 result = spark.sql(
-    """SELECT name, shooterID, shotResult, shotType, positionX, positionY FROM shots JOIN players on players.playerID=shots.shooterID"""
+    """SELECT name, shooterID,date, shotResult, shotType, positionX, positionY FROM shots JOIN players on players.playerID=shots.shooterID JOIN games on games.gameID==shots.gameID"""
 )
 
 result.show()
 
-name = "goles-messi"
+name = "goals-test"
 result.toPandas().to_csv("output/{}.csv".format(name))
