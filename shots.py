@@ -11,12 +11,15 @@ players = spark.read.csv(
 )
 players.createOrReplaceTempView("players")
 
-shooterID = 2097
-shotType = "Head"
+# shooterID = 2097 # Messi
+# shooterID = 447  # De Bruyne
+# shooterID = 564
+shooterID = 629
+# shotType = "Head"
 shotResult = "Goal"
 
 result = shots.filter(shots["shooterID"] == shooterID)
-result = result.filter(shots["shotType"] == shotType)
+# result = result.filter(shots["shotType"] == shotType)
 result = result.filter(shots["shotResult"] == shotResult)
 result.createOrReplaceTempView("shots")
 
