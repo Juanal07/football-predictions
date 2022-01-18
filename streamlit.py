@@ -1,3 +1,5 @@
+from ast import Index
+from tkinter import HIDDEN
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -5,9 +7,11 @@ import matplotlib.pyplot as plt
 import os
 import ftfy
 
+shootResults=["Todos","Goal","OwnGoal","MissedShot","BlockedShot","SavedShot","ShotOnPost"]
+shootTipe=["Todos","RightFoot","LeftFoot","Head","OtherBodyPart"]
 
-def launchSparkGoals(opcion):
-    os.system("python shots.py " + str(opcion))
+def launchSparkGoals(jugador, tipoGol, parteCuerpo):
+    os.system("python shots.py " + str(jugador) +" "+ str(tipoGol)+" "+ str(parteCuerpo))
 
 
 def scatter_plot(goles):
@@ -37,8 +41,13 @@ if st.button("Actualizar jugadores"):
     st.experimental_rerun()
 
 name = "goals-test"
-goles = pd.read_csv("output/{}.csv".format(name))
-goles
+try:
+    goles = pd.read_csv("output/{}.csv".format(name))
+except:
+    goles = pd.DataFrame()
+
+tabla = goles.drop(goles.columns[[0, 2, 6, 7]], axis=1)
+tabla
 image = "./images/pitch.png"
 img = plt.imread(image)
 
@@ -49,16 +58,25 @@ zip_iterator = zip(players["playerID"], players["name"])
 d = dict(zip_iterator)
 CHOICES = d
 
-option = st.selectbox(
-    "Select option",
+jugador = st.selectbox(
+    "Escoja un jugador",
     options=list(CHOICES.keys()),
     format_func=format_func,
 )
-st.write(f"You selected option {option} called {format_func(option)}")
-st.write(option)
+tipoGol = st.selectbox("Escoja el tipo de disparo",
+    options=shootResults
+)
+parteCuerpo = st.selectbox("Escoja el miembro con el que disparo",
+    options=shootTipe
+)
+
+# st.write(f"You selected option {jugador} called {format_func(jugador)}")
+# st.write(jugador)
 
 if st.button("Obetener shoots"):
-    launchSparkGoals(option)
+    launchSparkGoals(jugador, tipoGol, parteCuerpo)
     st.experimental_rerun()
-
-scatter_plot(goles)
+try:
+    scatter_plot(goles)
+except:
+    st.write("Selecciones un jugador")

@@ -23,11 +23,18 @@ print(shooterID)
 # shooterID = 564
 # shooterID = 629  # Rooney
 # shotType = "Head"
-shotResult = "Goal"
-
 result = shots.filter(shots["shooterID"] == shooterID)
 # result = result.filter(shots["shotType"] == shotType)
-result = result.filter(shots["shotResult"] == shotResult)
+
+if sys.argv[2]!="Todos":
+    shotResult = sys.argv[2]
+    result = result.filter(shots["shotResult"] == shotResult)
+
+if sys.argv[3]!="Todos":
+    shotType = sys.argv[3]
+    result = result.filter(shots["shotType"] == shotType)
+
+    
 result.createOrReplaceTempView("shots")
 
 result = spark.sql(
