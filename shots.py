@@ -15,10 +15,10 @@ games = spark.read.csv(
     "./FootballDatabase/games.csv", header=True, inferSchema=True, sep=","
 )
 games.createOrReplaceTempView("games")
-# shooterID = 2097 # Messi
+shooterID = 2097 # Messi
 # shooterID = 447  # De Bruyne
 # shooterID = 564
-shooterID = 629  # Rooney
+# shooterID = 629  # Rooney
 # shotType = "Head"
 shotResult = "Goal"
 
