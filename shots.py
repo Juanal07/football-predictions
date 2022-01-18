@@ -1,21 +1,24 @@
 from pyspark.sql import SparkSession
+import sys
 
 # import pandas as pd
 
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 
 shots = spark.read.csv(
-    "./FootballDatabase/shots.csv", header=True, inferSchema=True, sep=","
+    "./data/FootballDatabase/shots.csv", header=True, inferSchema=True, sep=","
 )
 players = spark.read.csv(
-    "./FootballDatabase/players.csv", header=True, inferSchema=True, sep=","
+    "./data/FootballDatabase/players.csv", header=True, inferSchema=True, sep=","
 )
 players.createOrReplaceTempView("players")
 games = spark.read.csv(
-    "./FootballDatabase/games.csv", header=True, inferSchema=True, sep=","
+    "./data/FootballDatabase/games.csv", header=True, inferSchema=True, sep=","
 )
 games.createOrReplaceTempView("games")
-shooterID = 2097 # Messi
+
+shooterID = sys.argv[1]  # Messi
+print(shooterID)
 # shooterID = 447  # De Bruyne
 # shooterID = 564
 # shooterID = 629  # Rooney
