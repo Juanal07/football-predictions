@@ -1,3 +1,2 @@
 ,name,shooterID,date,shotResult,shotType,positionX,positionY
-0,Lionel Messi,2097,2014-09-24 21:00:00,MissedShots,OtherBodyPart,0.919000015258789,0.52
-1,Lionel Messi,2097,2021-01-31 20:00:00,MissedShots,OtherBodyPart,0.953000030517578,0.572999992370606
+0,Raphael Varane,2245,2020-11-08 20:00:00,OwnGoal,LeftFoot,0.0480000019073486,0.497999992370605

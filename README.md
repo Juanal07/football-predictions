@@ -22,7 +22,7 @@ Crea un entorno virtual `virtualenv venv`
 
 Actívalo en Linux/MacOS `source venv/bin/activate`
 
-Actívalo en Windows`venv\scripts\activate`
+Actívalo en Windows `venv\scripts\activate`
 
 ## Dependencies
 
@@ -36,4 +36,4 @@ Necesitas la herramienta pipreqs `pip install pipreqs`
 ## Run
 Ejecuta spark python shots.py
 
-Ejecuta front streamlit run front-shots.py
+Ejecuta front streamlit run streamlit.py

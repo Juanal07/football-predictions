@@ -1,11 +1,8 @@
-from ast import Index
-from tkinter import HIDDEN
 import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import os
-import ftfy
 
 shootResults=["Todos","Goal","OwnGoal","MissedShot","BlockedShot","SavedShot","ShotOnPost"]
 shootTipe=["Todos","RightFoot","LeftFoot","Head","OtherBodyPart"]
