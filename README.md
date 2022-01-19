@@ -34,6 +34,6 @@ Necesitas la herramienta pipreqs `pip install pipreqs`
 `pipreqs --force .`
 
 ## Run
-Ejecuta spark python shots.py
+Ejecuta spark `python shots.py`
 
-Ejecuta front streamlit run streamlit.py
+Ejecuta front `streamlit run streamlit.py`
