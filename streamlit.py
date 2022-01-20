@@ -1,3 +1,5 @@
+from lib2to3.pgen2 import driver
+from urllib import request
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -5,6 +7,16 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 import os
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC, wait
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import *
+# import requests
+import re
+from webdriver_manager.chrome import ChromeDriverManager
+
+driver = webdriver.Chrome(ChromeDriverManager().install())
 
 shootResults=["Todos","Goal","OwnGoal","MissedShots","BlockedShot","SavedShot","ShotOnPost"]
 shootTipe=["Todos","RightFoot","LeftFoot","Head","OtherBodyPart"]
@@ -68,6 +80,18 @@ def scatter_plot(goles):
         ax.get_yaxis().set_visible(False)
         st.pyplot(fig)
 
+def scrap(jugador):
+    print(jugador)
+    # https://www.transfermarkt.co.uk/schnellsuche/ergebnis/schnellsuche?query=Wayne%20Rooney
+    jugador = re.sub(' ','%20', jugador)
+    URL = 'https://www.transfermarkt.co.uk/schnellsuche/ergebnis/schnellsuche?query='+jugador
+    print(URL)
+    driver.get(URL)
+    # aceptamos cookies
+    comaut = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#notice > div.message-component.message-row.mobile-reverse > div:nth-child(2) > button")))
+    comaut.click()
+
+
 def updatePlayers():
     os.system("python start-spark.py")
 
@@ -112,6 +136,8 @@ parteCuerpo = st.selectbox("Escoja el miembro con el que disparo",
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
+
+scrap(format_func(jugador))
 
 if st.button("Obetener shoots"):
     launchSparkGoals(jugador, tipoGol, parteCuerpo)
