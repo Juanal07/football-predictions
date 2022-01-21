@@ -4,21 +4,37 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 
-shootResults=["Todos","Goal","OwnGoal","MissedShot","BlockedShot","SavedShot","ShotOnPost"]
-shootTipe=["Todos","RightFoot","LeftFoot","Head","OtherBodyPart"]
+st.set_page_config(
+    page_title="Fútbol Big Data",
+    page_icon="⚽",
+)
+
+shootResults = [
+    "Todos",
+    "Goal",
+    "OwnGoal",
+    "MissedShot",
+    "BlockedShot",
+    "SavedShot",
+    "ShotOnPost",
+]
+shootTipe = ["Todos", "RightFoot", "LeftFoot", "Head", "OtherBodyPart"]
+
 
 def launchSparkGoals(jugador, tipoGol, parteCuerpo):
-    os.system("python shots.py " + str(jugador) +" "+ str(tipoGol)+" "+ str(parteCuerpo))
+    os.system(
+        "python shots.py " + str(jugador) + " " + str(tipoGol) + " " + str(parteCuerpo)
+    )
 
 
 def scatter_plot(goles):
 
-    x = np.array(goles["positionX"] * 1.4)
-    y = np.array(goles["positionY"] * 0.9)
+    x = np.array(goles["positionX"] * 1.05)
+    y = np.array(goles["positionY"] * 0.68)
 
     img = plt.imread("./images/pitch.png")
     fig, ax = plt.subplots(facecolor="none")
-    ax.imshow(img, zorder=0, extent=[0, 1.4, 0, 0.9])
+    ax.imshow(img, zorder=0, extent=[0, 1.05, 0, 0.68])
     ax.scatter(x, y, zorder=1, color="#0086ff")
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
@@ -60,12 +76,8 @@ jugador = st.selectbox(
     options=list(CHOICES.keys()),
     format_func=format_func,
 )
-tipoGol = st.selectbox("Escoja el tipo de disparo",
-    options=shootResults
-)
-parteCuerpo = st.selectbox("Escoja el miembro con el que disparo",
-    options=shootTipe
-)
+tipoGol = st.selectbox("Escoja el tipo de disparo", options=shootResults)
+parteCuerpo = st.selectbox("Escoja el miembro con el que disparo", options=shootTipe)
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
