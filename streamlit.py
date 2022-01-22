@@ -7,19 +7,23 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 import os
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC, wait
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import *
-# import requests
-import re
-from webdriver_manager.chrome import ChromeDriverManager
 
-driver = webdriver.Chrome(ChromeDriverManager().install())
+st.set_page_config(
+    page_title="Fútbol Big Data",
+    page_icon="⚽",
+)
 
-shootResults=["Todos","Goal","OwnGoal","MissedShots","BlockedShot","SavedShot","ShotOnPost"]
-shootTipe=["Todos","RightFoot","LeftFoot","Head","OtherBodyPart"]
+shootResults = [
+    "Todos",
+    "Goal",
+    "OwnGoal",
+    "MissedShots",
+    "BlockedShot",
+    "SavedShot",
+    "ShotOnPost",
+]
+shootTipe = ["Todos", "RightFoot", "LeftFoot", "Head", "OtherBodyPart"]
+
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
 
@@ -54,43 +58,37 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     return ax.add_patch(ellipse)
 
 def launchSparkGoals(jugador, tipoGol, parteCuerpo):
-    os.system("python shots.py " + str(jugador) +" "+ str(tipoGol)+" "+ str(parteCuerpo))
+    os.system(
+        "python shots.py " + str(jugador) + " " + str(tipoGol) + " " + str(parteCuerpo)
+    )
 
 
 def scatter_plot(goles):
     try:
-        x = np.array(goles["positionX"] * 1.4)
-        y = np.array(goles["positionY"] * 0.9)
+        x = np.array(goles["positionX"] * 1.05)
+        y = np.array(goles["positionY"] * 0.68)
         fig, ax = plt.subplots(facecolor="none")
         ax.scatter(x, y, zorder=1, color="#0086ff")
         img = plt.imread("./images/pitch.png")
-        ax.imshow(img, zorder=0, extent=[0, 1.4, 0, 0.9])
+        ax.imshow(img, zorder=0, extent=[0, 1.05, 0, 0.68])
         confidence_ellipse(x, y, ax, edgecolor='red')
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
         st.pyplot(fig)
     except:
-        x = np.array(goles["positionX"] * 1.4)
-        y = np.array(goles["positionY"] * 0.9)
+        x = np.array(goles["positionX"] * 1.05)
+        y = np.array(goles["positionY"] * 0.68)
         fig, ax = plt.subplots(facecolor="none")
         ax.scatter(x, y, zorder=1, color="#0086ff")
         img = plt.imread("./images/pitch.png")
-        ax.imshow(img, zorder=0, extent=[0, 1.4, 0, 0.9])
+        ax.imshow(img, zorder=0, extent=[0, 1.05, 0, 0.68])
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
         st.pyplot(fig)
 
 def scrap(jugador):
     print(jugador)
-    # https://www.transfermarkt.co.uk/schnellsuche/ergebnis/schnellsuche?query=Wayne%20Rooney
-    jugador = re.sub(' ','%20', jugador)
-    URL = 'https://www.transfermarkt.co.uk/schnellsuche/ergebnis/schnellsuche?query='+jugador
-    print(URL)
-    driver.get(URL)
-    # aceptamos cookies
-    comaut = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#notice > div.message-component.message-row.mobile-reverse > div:nth-child(2) > button")))
-    comaut.click()
-
+    
 
 def updatePlayers():
     os.system("python start-spark.py")
@@ -127,12 +125,8 @@ jugador = st.selectbox(
     options=list(CHOICES.keys()),
     format_func=format_func,
 )
-tipoGol = st.selectbox("Escoja el tipo de disparo",
-    options=shootResults
-)
-parteCuerpo = st.selectbox("Escoja el miembro con el que disparo",
-    options=shootTipe
-)
+tipoGol = st.selectbox("Escoja el tipo de disparo", options=shootResults)
+parteCuerpo = st.selectbox("Escoja el miembro con el que disparo", options=shootTipe)
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
