@@ -59,4 +59,4 @@ df = spark.sql(
 df.show()
 print("Número de rows: ", df.count())
 name = "prediction_df"
-df.toPandas().to_csv("output/{}.csv".format(name))
+df.toPandas().to_csv("output/{}.csv".format(name), index=False)
