@@ -1,6 +1,3 @@
-# from lib2to3.pgen2 import driver
-# from urllib import request
-# from attr import attributes
 import numpy as np
 import pandas as pd
 import streamlit as st
