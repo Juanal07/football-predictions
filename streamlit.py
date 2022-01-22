@@ -72,7 +72,7 @@ def scatter_plot(goles):
         x = np.array(goles["positionX"] * 1.05)
         y = np.array(goles["positionY"] * 0.68)
         fig, ax = plt.subplots(facecolor="none")
-        ax.scatter(x, y, zorder=1, color="#0086ff")
+        ax.scatter(x, y, zorder=1, color="#ffc45d")
         img = plt.imread("./images/pitch.png")
         ax.imshow(img, zorder=0, extent=[0, 1.05, 0, 0.68])
         confidence_ellipse(x, y, ax, edgecolor='red')
@@ -83,7 +83,7 @@ def scatter_plot(goles):
         x = np.array(goles["positionX"] * 1.05)
         y = np.array(goles["positionY"] * 0.68)
         fig, ax = plt.subplots(facecolor="none")
-        ax.scatter(x, y, zorder=1, color="#0086ff")
+        ax.scatter(x, y, zorder=1, color="#ffc45d")
         img = plt.imread("./images/pitch.png")
         ax.imshow(img, zorder=0, extent=[0, 1.05, 0, 0.68])
         ax.get_xaxis().set_visible(False)
@@ -113,23 +113,43 @@ def scrap(jugador, attributes):
     print(img)
 
     datos = soupJugador.find('div', class_="col taula-dades pl-0 pr-0 pb-0 pt-0 pt-2 pb-2 d-flex align-items-center")
-    # print(datos)
     datos2 = datos.find_all('div', class_='row')
+    datos2.pop(-2)
     # print(datos2)
-    # print('\n\n\n')
-    # atrs = []
     attributes.append(img)
     campo = ["Nombre completo:", "Fecha de nacimiento:","Lugar de nacimiento:","País de nacimiento:","Altura:","Peso:","Demarcación:"]
-    for row in datos2:
+    i=0
+    for row in campo:
+        print(datos.index(row))
         try:
-            name = row.find('div', class_='col-md-9').text
-            name = re.sub('  ','',name) #Hecho de forma cutre se puede cambiar a regex complejo
-            name = re.sub('\n','',name)
-            name = re.sub('\r','',name)
-            print(name)
-            atrs.append(name)
+            if campo[i]=="Nombre completo:":
+                name = row.find('div', class_='col-md-9').text
+                name = re.sub('  ','',name) #Hecho de forma cutre se puede cambiar a regex complejo
+                name = re.sub('\n','',name)
+                name = re.sub('\r','',name)
+                print(name)
+                attributes.append(name)
+            elif campo[i]=="Demarcación:":
+                try:
+                    pos = re.findall('"float-left">((\w+|\w+.\w+))</div', str(row))
+                    print(pos[0])
+                    attributes.append(pos[0][1])
+                except:                    
+                    pos = re.findall('"float-left">((\w+))</div', str(row))
+                    print(pos)
+                    attributes.append(pos[0])
+            else:
+                try:
+                    data = re.findall('('+campo[i]+').*\n.*">(.*)<', str(datos2))
+                    res=re.sub('</a>','',data[0][1])
+                    print(res)
+                    attributes.append(res)
+                except:
+                    attributes.append("No hay datos")
+            i += 1
         except:
-            print('fin')
+            print("fallo")
+            attributes.append("No hay datos")
     print(attributes)
     
 
@@ -173,6 +193,12 @@ parteCuerpo = st.selectbox("Escoja cómo se realizó el disparo", options=shootT
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
+
+if st.button("Obtener disparos"):
+    launchSparkGoals(jugador, tipoGol, parteCuerpo)
+    st.experimental_rerun()
+
+# Mostramos los datos del Webscrapper
 atrs = []
 scrap(format_func(jugador), atrs)
 print("Lista final")
@@ -190,10 +216,6 @@ st.write("Altura: "+ atrs[5])
 st.write("Peso: "+ atrs[6])
 st.write("Posción: "+ atrs[7])
 
-
-if st.button("Obtener disparos"):
-    launchSparkGoals(jugador, tipoGol, parteCuerpo)
-    st.experimental_rerun()
 try:
     scatter_plot(goles)
 except:
