@@ -1,5 +1,6 @@
 from lib2to3.pgen2 import driver
 from urllib import request
+from attr import attributes
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -7,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 import os
+import requests
+import re
+from bs4 import BeautifulSoup
 
 st.set_page_config(
     page_title="Fútbol Big Data",
@@ -86,8 +90,47 @@ def scatter_plot(goles):
         ax.get_yaxis().set_visible(False)
         st.pyplot(fig)
 
-def scrap(jugador):
+def scrap(jugador, attributes):
     print(jugador)
+    jugador = re.sub(' ','+', jugador)
+    URL = 'https://www.bdfutbol.com/es/buscar.php?d='+jugador+'&bj=on'
+    print(URL)
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    # print(soup)
+    tabla = soup.find('table')
+    # print(tabla)
+    linkJugador = tabla.find('a')['href']
+    linkJugador = 'https://www.bdfutbol.com/es/'+linkJugador
+    print(linkJugador)
+
+    pageJugador = requests.get(linkJugador)
+    soupJugador = BeautifulSoup(pageJugador.content, 'html.parser')
+    # print(soupJugador)
+    img = soupJugador.find('div', class_="carousel-inner")
+    img = img.find('img')['src']
+    img = 'https://www.bdfutbol.com/'+img[6:]
+    print(img)
+
+    datos = soupJugador.find('div', class_="col taula-dades pl-0 pr-0 pb-0 pt-0 pt-2 pb-2 d-flex align-items-center")
+    # print(datos)
+    datos2 = datos.find_all('div', class_='row')
+    # print(datos2)
+    # print('\n\n\n')
+    # atrs = []
+    attributes.append(img)
+    campo = ["Nombre completo:", "Fecha de nacimiento:","Lugar de nacimiento:","País de nacimiento:","Altura:","Peso:","Demarcación:"]
+    for row in datos2:
+        try:
+            name = row.find('div', class_='col-md-9').text
+            name = re.sub('  ','',name) #Hecho de forma cutre se puede cambiar a regex complejo
+            name = re.sub('\n','',name)
+            name = re.sub('\r','',name)
+            print(name)
+            atrs.append(name)
+        except:
+            print('fin')
+    print(attributes)
     
 
 def updatePlayers():
@@ -125,15 +168,30 @@ jugador = st.selectbox(
     options=list(CHOICES.keys()),
     format_func=format_func,
 )
-tipoGol = st.selectbox("Escoja el tipo de disparo", options=shootResults)
-parteCuerpo = st.selectbox("Escoja el miembro con el que disparo", options=shootTipe)
+tipoGol = st.selectbox("Escoja el resultado del disparo", options=shootResults)
+parteCuerpo = st.selectbox("Escoja cómo se realizó el disparo", options=shootTipe)
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
+atrs = []
+scrap(format_func(jugador), atrs)
+print("Lista final")
+# Para eliminar porblemas con dobles nacionalidades
+# if len(atrs)>8:
+#     atrs.pop(5)
+print(atrs)
 
-scrap(format_func(jugador))
+st.image(atrs[0])
+st.write("Nombre Completo: "+ atrs[1])
+st.write("Fecha de Nacimiento, Edad: "+ atrs[2])
+st.write("Ciudad de Nacimiento: "+ atrs[3])
+st.write("Nacionalidad: "+ atrs[4])
+st.write("Altura: "+ atrs[5])
+st.write("Peso: "+ atrs[6])
+st.write("Posción: "+ atrs[7])
 
-if st.button("Obetener shoots"):
+
+if st.button("Obtener disparos"):
     launchSparkGoals(jugador, tipoGol, parteCuerpo)
     st.experimental_rerun()
 try:
