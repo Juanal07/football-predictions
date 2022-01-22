@@ -158,76 +158,94 @@ def format_func(option):
 
 # Inicio de HTML
 
-st.title("Localización de Disparos")
+secciones= ["Introducción", "Localización de Disparos", "Predicción de Precios"]
 
-st.markdown("En la siguiente página podrá seleccionar un jugador y se le mostrarán todos los disparos que haya efectuado.\
-            Adicionalmete, podrá filtrar por el tipo de disparo efectuado y el resultado del mismo.")
+st.sidebar.title("Menú")
+menu = st.sidebar.radio(options=secciones, index=0, label="Elija que desea mostrar")
+
+if menu=="Introducción":
+    st.write("""
+        # Bienvenido a nuestro trabajo de Final Big Data!\n
+        👋 En esta web encontrará información sobre datasets de fútbol europeo.\n
+        🌅 La información se ha obtenido de datasets de Kaggle y webscrapers. \n
+        📄 Para más info consulte la memoria adjunta al código entregado.\n
+        👈 En la barra lateral podrá ir navegando por las distintas opciones desarrolladas""")
+
+if menu=="Localización de Disparos":
+
+    st.title("Localización de Disparos")
+
+    st.markdown("En la siguiente página podrá seleccionar un jugador y se le mostrarán todos los disparos que haya efectuado.\
+                Adicionalmete, podrá filtrar por el tipo de disparo efectuado y el resultado del mismo.")
 
 
-st.caption("En este botón podrá actualizar la lista de jugadores del desplegable, para añadir si se han añadido nuevos a a lista.")
-if st.button("Actualizar jugadores"):
-    updatePlayers()
-    st.experimental_rerun()
+    st.caption("En este botón podrá actualizar la lista de jugadores del desplegable, para añadir si se han añadido nuevos a a lista.")
+    if st.button("Actualizar jugadores"):
+        updatePlayers()
+        st.experimental_rerun()
 
-name = "goals-test"
-try:
-    goles = pd.read_csv("output/{}.csv".format(name))
-except:
-    goles = pd.DataFrame()
+    name = "goals-test"
+    try:
+        goles = pd.read_csv("output/{}.csv".format(name))
+    except:
+        goles = pd.DataFrame()
 
-tabla = goles.drop(goles.columns[[0, 2, 6, 7]], axis=1)
-# tabla
-image = "./images/pitch.png"
-img = plt.imread(image)
+    tabla = goles.drop(goles.columns[[0, 2, 6, 7]], axis=1)
+    # tabla
+    image = "./images/pitch.png"
+    img = plt.imread(image)
 
-# TODO: checkear encoding para que funcionen las comillas Eunan O'Kane
-players = pd.read_csv("./data/FootballDatabase/players.csv", encoding="latin1")
+    # TODO: checkear encoding para que funcionen las comillas Eunan O'Kane
+    players = pd.read_csv("./data/FootballDatabase/players.csv", encoding="latin1")
 
-zip_iterator = zip(players["playerID"], players["name"])
-d = dict(zip_iterator)
-CHOICES = d
+    zip_iterator = zip(players["playerID"], players["name"])
+    d = dict(zip_iterator)
+    CHOICES = d
 
-jugador = st.selectbox(
-    "Escoja un jugador",
-    options=list(CHOICES.keys()),
-    format_func=format_func,
-)
+    jugador = st.selectbox(
+        "Escoja un jugador",
+        options=list(CHOICES.keys()),
+        format_func=format_func,
+    )
 
-c1, c2= st.columns(2)
-tipoGol = c1.selectbox("Escoja el resultado del disparo", options=shootResults)
-parteCuerpo = c2.selectbox("Escoja cómo se realizó el disparo", options=shootTipe)
+    c1, c2= st.columns(2)
+    tipoGol = c1.selectbox("Escoja el resultado del disparo", options=shootResults)
+    parteCuerpo = c2.selectbox("Escoja cómo se realizó el disparo", options=shootTipe)
 
-# st.write(f"You selected option {jugador} called {format_func(jugador)}")
-# st.write(jugador)
+    # st.write(f"You selected option {jugador} called {format_func(jugador)}")
+    # st.write(jugador)
 
-if st.button("Obtener disparos"):
-    launchSparkGoals(jugador, tipoGol, parteCuerpo)
-    st.experimental_rerun()
+    if st.button("Obtener disparos"):
+        launchSparkGoals(jugador, tipoGol, parteCuerpo)
+        st.experimental_rerun()
 
-# Mostramos los datos del Webscrapper
-atrs = []
-scrap(format_func(jugador), atrs)
-print("Lista final")
-print(atrs)
+    # Mostramos los datos del Webscrapper
+    atrs = []
+    scrap(format_func(jugador), atrs)
 
-st.subheader("Datos del jugador")
+    st.subheader("Datos del jugador")
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-col1.image(atrs[0])
-col2.write("Nombre Completo: "+ atrs[1])
-col2.write("Fecha de Nacimiento, Edad: "+ atrs[2])
-col2.write("Ciudad de Nacimiento: "+ atrs[3])
-col2.write("Nacionalidad: "+ atrs[4])
-col2.write("Altura: "+ atrs[5])
-col2.write("Peso: "+ atrs[6])
-col2.write("Posción: "+ atrs[7])
+    col1.image(atrs[0])
+    col2.write("Nombre Completo: "+ atrs[1])
+    col2.write("Fecha de Nacimiento, Edad: "+ atrs[2])
+    col2.write("Ciudad de Nacimiento: "+ atrs[3])
+    col2.write("Nacionalidad: "+ atrs[4])
+    col2.write("Altura: "+ atrs[5])
+    col2.write("Peso: "+ atrs[6])
+    col2.write("Posción: "+ atrs[7])
 
-st.subheader("Campo de tiros")
+    st.subheader("Campo de tiros")
 
-try:
-    scatter_plot(goles)
-    st.subheader("Tabla de tiros")
-    tabla
-except:
-    st.write("Selecciones un jugador")
+    try:
+        scatter_plot(goles)
+        st.subheader("Tabla de tiros")
+        tabla
+    except:
+        st.write("Selecciones un jugador")
+
+if menu=="Predicción de Precios":
+    st.title("Predicción de Precios")
+
+    st.markdown("descripcion a desarrollar ...")
