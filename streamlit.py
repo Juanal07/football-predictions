@@ -1,6 +1,6 @@
-from lib2to3.pgen2 import driver
-from urllib import request
-from attr import attributes
+# from lib2to3.pgen2 import driver
+# from urllib import request
+# from attr import attributes
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -115,27 +115,26 @@ def scrap(jugador, attributes):
     datos = soupJugador.find('div', class_="col taula-dades pl-0 pr-0 pb-0 pt-0 pt-2 pb-2 d-flex align-items-center")
     datos2 = datos.find_all('div', class_='row')
     datos2.pop(-2)
-    # print(datos2)
+    print(len(datos2))
     attributes.append(img)
     campo = ["Nombre completo:", "Fecha de nacimiento:","Lugar de nacimiento:","País de nacimiento:","Altura:","Peso:","Demarcación:"]
     i=0
     for row in campo:
-        print(datos.index(row))
         try:
-            if campo[i]=="Nombre completo:":
-                name = row.find('div', class_='col-md-9').text
+            if row=="Nombre completo:":
+                name = datos2[i].find('div', class_='col-md-9').text
                 name = re.sub('  ','',name) #Hecho de forma cutre se puede cambiar a regex complejo
                 name = re.sub('\n','',name)
                 name = re.sub('\r','',name)
                 print(name)
                 attributes.append(name)
-            elif campo[i]=="Demarcación:":
+            elif row=="Demarcación:":
                 try:
-                    pos = re.findall('"float-left">((\w+|\w+.\w+))</div', str(row))
+                    pos = re.findall('"float-left">((\w+|\w+.\w+))</div', str(datos2))
                     print(pos[0])
                     attributes.append(pos[0][1])
                 except:                    
-                    pos = re.findall('"float-left">((\w+))</div', str(row))
+                    pos = re.findall('"float-left">((\w+))</div', str(datos2))
                     print(pos)
                     attributes.append(pos[0])
             else:
@@ -146,10 +145,10 @@ def scrap(jugador, attributes):
                     attributes.append(res)
                 except:
                     attributes.append("No hay datos")
-            i += 1
         except:
             print("fallo")
             attributes.append("No hay datos")
+        i += 1
     print(attributes)
     
 
@@ -160,7 +159,15 @@ def updatePlayers():
 def format_func(option):
     return CHOICES[option]
 
+# Inicio de HTML
 
+st.title("Localización de Disparos")
+
+st.markdown("En la siguiente página podrá seleccionar un jugador y se le mostrarán todos los disparos que haya efectuado.\
+            Adicionalmete, podrá filtrar por el tipo de disparo efectuado y el resultado del mismo.")
+
+
+st.caption("En este botón podrá actualizar la lista de jugadores del desplegable, para añadir si se han añadido nuevos a a lista.")
 if st.button("Actualizar jugadores"):
     updatePlayers()
     st.experimental_rerun()
@@ -172,7 +179,7 @@ except:
     goles = pd.DataFrame()
 
 tabla = goles.drop(goles.columns[[0, 2, 6, 7]], axis=1)
-tabla
+# tabla
 image = "./images/pitch.png"
 img = plt.imread(image)
 
@@ -188,8 +195,10 @@ jugador = st.selectbox(
     options=list(CHOICES.keys()),
     format_func=format_func,
 )
-tipoGol = st.selectbox("Escoja el resultado del disparo", options=shootResults)
-parteCuerpo = st.selectbox("Escoja cómo se realizó el disparo", options=shootTipe)
+
+c1, c2= st.columns(2)
+tipoGol = c1.selectbox("Escoja el resultado del disparo", options=shootResults)
+parteCuerpo = c2.selectbox("Escoja cómo se realizó el disparo", options=shootTipe)
 
 # st.write(f"You selected option {jugador} called {format_func(jugador)}")
 # st.write(jugador)
@@ -202,21 +211,26 @@ if st.button("Obtener disparos"):
 atrs = []
 scrap(format_func(jugador), atrs)
 print("Lista final")
-# Para eliminar porblemas con dobles nacionalidades
-# if len(atrs)>8:
-#     atrs.pop(5)
 print(atrs)
 
-st.image(atrs[0])
-st.write("Nombre Completo: "+ atrs[1])
-st.write("Fecha de Nacimiento, Edad: "+ atrs[2])
-st.write("Ciudad de Nacimiento: "+ atrs[3])
-st.write("Nacionalidad: "+ atrs[4])
-st.write("Altura: "+ atrs[5])
-st.write("Peso: "+ atrs[6])
-st.write("Posción: "+ atrs[7])
+st.subheader("Datos del jugador")
+
+col1, col2 = st.columns(2)
+
+col1.image(atrs[0])
+col2.write("Nombre Completo: "+ atrs[1])
+col2.write("Fecha de Nacimiento, Edad: "+ atrs[2])
+col2.write("Ciudad de Nacimiento: "+ atrs[3])
+col2.write("Nacionalidad: "+ atrs[4])
+col2.write("Altura: "+ atrs[5])
+col2.write("Peso: "+ atrs[6])
+col2.write("Posción: "+ atrs[7])
+
+st.subheader("Campo de tiros")
 
 try:
     scatter_plot(goles)
+    st.subheader("Tabla de tiros")
+    tabla
 except:
     st.write("Selecciones un jugador")
