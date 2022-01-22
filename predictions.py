@@ -11,75 +11,52 @@ players = spark.read.csv(
     sep=",",
 )
 players.createOrReplaceTempView("players")
+appearances = spark.read.csv(
+    "./data/FootballDataFromTransfermarkt/appearances.csv",
+    header=True,
+    inferSchema=True,
+    sep=",",
+)
+appearances.createOrReplaceTempView("appearances")
+games = spark.read.csv(
+    "./data/FootballDataFromTransfermarkt/games.csv",
+    header=True,
+    inferSchema=True,
+    sep=",",
+)
+games.createOrReplaceTempView("games")
 
-result = spark.sql(
-    """SELECT player_id, pretty_name, date_of_birth, position, foot,height_in_cm,
+df = spark.sql(
+    """SELECT player_id, pretty_name, date_of_birth,country_of_citizenship,
+    position,sub_position, foot,height_in_cm,
     market_value_in_gbp,highest_market_value_in_gbp
     FROM players"""
 )
-
-print("Número de rows: ", result.count())
-result.show()
-
-training = result.filter(result.market_value_in_gbp.isNotNull())
-print("Número de rows: ", training.count())
-training.show()
-
-test = result.filter(result.market_value_in_gbp.isNull())
-print("Número de rows: ", test.count())
-test.show()
-
-from pyspark.ml import Pipeline
-from pyspark.ml.classification import RandomForestClassifier
-from pyspark.ml.feature import IndexToString, StringIndexer, VectorIndexer
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-
-# Load and parse the data file, converting it to a DataFrame.
-data = result
-
-# Index labels, adding metadata to the label column.
-# Fit on whole dataset to include all labels in index.
-labelIndexer = StringIndexer(
-    inputCol="market_value_in_gbp", outputCol="market_value_in_gbp_prediction"
-).fit(data)
-
-# Automatically identify categorical features, and index them.
-# Set maxCategories so features with > 4 distinct values are treated as continuous.
-featureIndexer = VectorIndexer(
-    inputCol="features", outputCol="indexedFeatures", maxCategories=4
-).fit(data)
-
-# Split the data into training and test sets (30% held out for testing)
-(trainingData, testData) = data.randomSplit([0.7, 0.3])
-
-# Train a RandomForest model.
-rf = RandomForestClassifier(
-    labelCol="indexedLabel", featuresCol="indexedFeatures", numTrees=10
+df.createOrReplaceTempView("df")
+result = spark.sql(
+    """SELECT player_id, total_goals, total_goals/games as `g/g`, yellow_cards/games as `y/g`, red_cards/games as `r/g`,
+    minutes_played/games as `m/g`,assists as total_assists, assists/games as `a/g`,games from
+    (select player_id, sum(goals) as total_goals, count(game_id) as games, sum(yellow_cards) as yellow_cards,
+    sum(red_cards) as red_cards, sum(minutes_played) as minutes_played, sum(assists) as assists
+    FROM appearances GROUP BY player_id)"""
 )
-
-# Convert indexed labels back to original labels.
-labelConverter = IndexToString(
-    inputCol="prediction", outputCol="predictedLabel", labels=labelIndexer.labels
+result.createOrReplaceTempView("result")
+result2 = spark.sql(
+    """select player_id, count(distinct season) as seasons from (SELECT player_id, season
+    FROM appearances JOIN games ON appearances.game_id=games.game_id) group by player_id order by seasons desc
+    """
 )
-
-# Chain indexers and forest in a Pipeline
-pipeline = Pipeline(stages=[labelIndexer, featureIndexer, rf, labelConverter])
-
-# Train model.  This also runs the indexers.
-model = pipeline.fit(trainingData)
-
-# Make predictions.
-predictions = model.transform(testData)
-
-# Select example rows to display.
-predictions.select("predictedLabel", "label", "features").show(5)
-
-# Select (prediction, true label) and compute test error
-evaluator = MulticlassClassificationEvaluator(
-    labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy"
+result2.createOrReplaceTempView("result2")
+df = spark.sql(
+    """SELECT df.player_id, pretty_name, date_of_birth,country_of_citizenship,
+    position, sub_position,
+    foot,height_in_cm, market_value_in_gbp,highest_market_value_in_gbp,
+    total_goals,`g/g`,
+    `y/g`,`r/g`,`m/g`,total_assists, `a/g`, games/seasons as `g/s`
+    FROM df JOIN result ON df.player_id=result.player_id JOIN result2 ON df.player_id=result2.player_id"""
 )
-accuracy = evaluator.evaluate(predictions)
-print("Test Error = %g" % (1.0 - accuracy))
-
-rfModel = model.stages[2]
-print(rfModel)  # summary only
+# df.createOrReplaceTempView("df")
+df.show()
+print("Número de rows: ", df.count())
+name = "prediction_df"
+df.toPandas().to_csv("output/{}.csv".format(name))
