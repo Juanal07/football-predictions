@@ -6,6 +6,7 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import col, abs
 
 from pyspark.ml.regression import DecisionTreeRegressor
+from pyspark.ml.feature import VectorIndexer
 
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 
@@ -33,9 +34,9 @@ rows = [
 players.createOrReplaceTempView("players2")
 no_marketvalue = players.filter(players.market_value_in_gbp.isNull())
 have_marketvalue = players.filter(players.market_value_in_gbp.isNotNull())
-players.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
-no_marketvalue.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
-have_marketvalue.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
+# players.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
+# no_marketvalue.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
+# have_marketvalue.select("pretty_name", "market_value_in_gbp", "highest_market_value_in_gbp").show()
 # clean = players.dropna()
 clean = have_marketvalue.dropna()
 print(have_marketvalue.count())
@@ -104,35 +105,8 @@ lr_predictions.agg({'difference': 'mean'}).show()
 quantiles = lr_predictions.approxQuantile("difference", [0.25, 0.5, 0.75], 0.2)
 print(quantiles)
 
-clean_players = players.dropna(subset=rows)
-clean_players_index = pipeline.fit(clean_players).transform(clean_players)
-clean_players_vec = vectorAssembler.transform(clean_players_index)
-players2withPredictions = lr_model.transform(clean_players_vec)
-players2withPredictions.toPandas().to_csv("output/{}.csv".format("players2_predicted"), index=False)
-
-print("------- Decision Tree -------")
-dt = DecisionTreeRegressor(featuresCol ='features', labelCol = 'market_value_in_gbp')
-dt_model = dt.fit(train_df)
-print("--- Test ---")
-dt_predictions = dt_model.transform(test_df)
-dt_evaluator = RegressionEvaluator(
-    labelCol="market_value_in_gbp", predictionCol="prediction", metricName="rmse")
-rmse = dt_evaluator.evaluate(dt_predictions)
-print("Root Mean Squared Error (RMSE) on test data = %g" % rmse)
-
-# dt_predictions = dt_predictions.withColumn("difference", abs(col("market_value_in_gbp") - col("prediction")))
-# dt_predictions.select("pretty_name", "prediction","market_value_in_gbp", "difference","features").show(5)
-# lr_predictions.agg({'difference': 'mean'}).show()
-# quantiles = lr_predictions.approxQuantile("difference", [0.25, 0.5, 0.75], 0.2)
-# print(quantiles)
-
-# from pyspark.ml.regression import GBTRegressor
-# print("------- Gradient-boosted Tree -------")
-# gbt = GBTRegressor(featuresCol = 'features', labelCol = 'market_value_in_gbp', maxIter=10)
-# gbt_model = gbt.fit(train_df)
-# gbt_predictions = gbt_model.transform(test_df)
-# gbt_predictions.select('prediction', 'market_value_in_gbp', 'features').show(5)
-# gbt_evaluator = RegressionEvaluator(
-#     labelCol="market_value_in_gbp", predictionCol="prediction", metricName="rmse")
-# rmse = gbt_evaluator.evaluate(gbt_predictions)
-# print("Root Mean Squared Error (RMSE) on test data = %g" % rmse)
+# clean_players = players.dropna(subset=rows)
+# clean_players_index = pipeline.fit(clean_players).transform(clean_players)
+# clean_players_vec = vectorAssembler.transform(clean_players_index)
+# players2withPredictions = lr_model.transform(clean_players_vec)
+# players2withPredictions.toPandas().to_csv("output/{}.csv".format("players2_predicted"), index=False)
