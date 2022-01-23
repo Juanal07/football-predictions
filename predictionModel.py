@@ -5,9 +5,6 @@ from pyspark.ml.feature import VectorAssembler, StringIndexer
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import col, abs
 
-from pyspark.ml.regression import DecisionTreeRegressor
-from pyspark.ml.feature import VectorIndexer
-
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 
 players = spark.read.csv(

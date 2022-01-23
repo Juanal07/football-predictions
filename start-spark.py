@@ -1,12 +1,4 @@
--from pyspark.sql import SparkSession
-from pyspark.ml import Pipeline
-from pyspark.ml.regression import LinearRegression
-from pyspark.ml.feature import VectorAssembler, StringIndexer
-from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.sql.functions import col, abs
-
-
-# import pandas as pd
+from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 

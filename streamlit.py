@@ -256,7 +256,7 @@ if menu=="Predicción de Precios":
         estadísticas más relevantes y luego se puede seleccionar un jugador en concreto para \
         verlo con más detalle.")
 
-    st.subheader("Tabla de predicciones de precios")
+    st.subheader("Tabla de predicciones de precios £")
 
     file = "players2_predicted"
     predsDF = pd.read_csv("output/{}.csv".format(file))
