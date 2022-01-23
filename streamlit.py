@@ -280,16 +280,46 @@ if menu=="Predicción de Precios":
     # st.write(f"You selected option {prediccion} called {format_func(prediccion)}")
 
     jPred = predictions.loc[predictions["player_id"]==prediccion]
-    print(jPred)
-    st.write(jPred)
+    # print(jPred)
+    # st.write(jPred)
     precio = float(jPred["prediction"])*1.19
     formatted_float = "{:,.2f} €".format(precio)
     # print(formatted_float)
     colp1, colp2 = st.columns(2)
     colp1.write(":euro: Predecimos que su precio en el mercado es:")
     colp2.subheader(formatted_float)
+    # Mostramos los datos del jugador
+    st.subheader("Datos del jugador")
+    dp1, dp2 = st.columns(2)
+    pName = jPred.iloc[0]["pretty_name"]
+    # print(pName)
+    dp1.write("Nombre del jugador: "+ pName)
+    pNac = jPred.iloc[0]["date_of_birth"]
+    dp1.write("Fecha de Nacimiento: "+ pNac)
+    pPais = jPred.iloc[0]["country_of_citizenship"]
+    dp1.write("País de Nacimiento: "+ pPais)
+    pPos = jPred.iloc[0]["position"]
+    dp1.write("Posición: "+ pPos)
+    pSub = jPred.iloc[0]["sub_position"]
+    dp1.write("Subposición: "+ pSub)
+    pPie = jPred.iloc[0]["foot"]
+    dp1.write("Pie: "+ pPie)
+    pAlt = jPred.iloc[0]["height_in_cm"]
+    dp1.write("Altura (cm): "+ str(pAlt))
 
-    # dp1, dp2, dp3 = st.columns(3)
-    # pNac = jPred["date_of_birth"]
-    # print(pNac)
-    # # st.write("Fecha de nacimiento: "+ pNac)
+    gt = jPred.iloc[0]["total_goals"]
+    dp2.write("Goles totales: "+ str(gt))
+    gg = jPred.iloc[0]["g/g"]
+    dp2.write("Goles por partido: "+ str(round(gg,3)))
+    yg = jPred.iloc[0]["y/g"]
+    dp2.write("Tarjetas amarillas por Partido: "+ str(round(yg,3)))
+    rg = jPred.iloc[0]["r/g"]
+    dp2.write("Tarjetas rojas por Partido: "+ str(round(rg,3)))
+    mg = jPred.iloc[0]["m/g"]
+    dp2.write("Minutos por partido: "+ str(round(mg,3)))
+    ta = jPred.iloc[0]["total_assists"]
+    dp2.write("Asistencias totales: "+ str(ta))
+    ag = jPred.iloc[0]["a/g"]
+    dp2.write("Asistencias por Partido: "+ str(round(ag,3)))
+    gs = jPred.iloc[0]["g/s"]
+    dp2.write("Partidos por temporada: "+ str(round(gs,2)))
