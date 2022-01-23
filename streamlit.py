@@ -248,7 +248,12 @@ if menu=="Localización de Disparos":
 if menu=="Predicción de Precios":
     st.title("Predicción de Precios")
 
-    st.markdown("descripcion a desarrollar ...")
+    st.markdown("En esta página se predicen los valores de mercado de los jugadores de las \
+        ligas europeas. Primeramente se muestran todo ellos en una tabla junto con sus \
+        estadísticas más relevantes y luego se puede seleccionar un jugador en concreto para \
+        verlo con más detalle.")
+
+    st.subheader("Tabla de predicciones de precios")
 
     file = "players2_predicted"
     predsDF = pd.read_csv("output/{}.csv".format(file))
@@ -257,3 +262,34 @@ if menu=="Predicción de Precios":
     tablaPreds = predsDF.filter(predsDF.columns[[1,24,9,8]])
     tablaPreds
     predsDF
+
+    st.subheader("Precio predecido del jugador")
+
+    predictions = pd.read_csv("output\players2_predicted.csv")
+
+    zip_iterator2 = zip(predictions["player_id"], predictions["pretty_name"])
+    d2 = dict(zip_iterator2)
+    CHOICES = d2
+
+    prediccion = st.selectbox(
+        "Escoja un jugador",
+        options=list(CHOICES.keys()),
+        format_func=format_func,
+    )
+
+    # st.write(f"You selected option {prediccion} called {format_func(prediccion)}")
+
+    jPred = predictions.loc[predictions["player_id"]==prediccion]
+    print(jPred)
+    st.write(jPred)
+    precio = float(jPred["prediction"])*1.19
+    formatted_float = "{:,.2f} €".format(precio)
+    # print(formatted_float)
+    colp1, colp2 = st.columns(2)
+    colp1.write(":euro: Predecimos que su precio en el mercado es:")
+    colp2.subheader(formatted_float)
+
+    # dp1, dp2, dp3 = st.columns(3)
+    # pNac = jPred["date_of_birth"]
+    # print(pNac)
+    # # st.write("Fecha de nacimiento: "+ pNac)
