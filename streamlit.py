@@ -249,3 +249,11 @@ if menu=="Predicción de Precios":
     st.title("Predicción de Precios")
 
     st.markdown("descripcion a desarrollar ...")
+
+    file = "players2_predicted"
+    predsDF = pd.read_csv("output/{}.csv".format(file))
+
+    # tablaPreds = predsDF.drop(predsDF.columns[[0, 2, 6, 7]], axis=1)
+    tablaPreds = predsDF.filter(predsDF.columns[[1,24,9,8]])
+    tablaPreds
+    predsDF
