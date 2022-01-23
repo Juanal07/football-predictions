@@ -265,7 +265,7 @@ if menu=="Predicción de Precios":
 
     st.subheader("Precio predecido del jugador")
 
-    predictions = pd.read_csv("output\players2_predicted.csv")
+    predictions = pd.read_csv("output/players2_predicted.csv")
 
     zip_iterator2 = zip(predictions["player_id"], predictions["pretty_name"])
     d2 = dict(zip_iterator2)
