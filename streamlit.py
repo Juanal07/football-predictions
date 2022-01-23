@@ -152,6 +152,9 @@ def scrap(jugador, attributes):
 def updatePlayers():
     os.system("python start-spark.py")
 
+def updatePrediciones():
+    os.system("python predictionModel.py")
+
 
 def format_func(option):
     return CHOICES[option]
@@ -179,7 +182,7 @@ if menu=="Localización de Disparos":
                 Adicionalmete, podrá filtrar por el tipo de disparo efectuado y el resultado del mismo.")
 
 
-    st.caption("En este botón podrá actualizar la lista de jugadores del desplegable, para añadir si se han añadido nuevos a a lista.")
+    st.caption("En este botón podrá actualizar la lista de jugadores del desplegable, para añadir si se han añadido nuevos a la lista.")
     if st.button("Actualizar jugadores"):
         updatePlayers()
         st.experimental_rerun()
@@ -261,11 +264,15 @@ if menu=="Predicción de Precios":
     # tablaPreds = predsDF.drop(predsDF.columns[[0, 2, 6, 7]], axis=1)
     tablaPreds = predsDF.filter(predsDF.columns[[1,24,9,8]])
     tablaPreds
-    predsDF
 
-    st.subheader("Precio predecido del jugador")
+    st.caption("En este botón podrá actualizar las prediciones de jugadores.")
+    if st.button("Actualizar prediciones"):
+        updatePrediciones()
+        st.experimental_rerun()
 
-    predictions = pd.read_csv("output/players2_predicted.csv")
+    st.subheader("Precio predecido del jugador €")
+
+    predictions = pd.read_csv(path)
 
     zip_iterator2 = zip(predictions["player_id"], predictions["pretty_name"])
     d2 = dict(zip_iterator2)
